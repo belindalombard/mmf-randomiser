@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>MMF Randomiser 2026</title>
+  <style>
+    :root { --bg:#f6f7fb; --card:#ffffff; --ink:#1f2937; --muted:#6b7280; --line:#d1d5db; --accent:#1f6feb; --good:#0f766e; --warn:#b45309; --bad:#b91c1c; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background:var(--bg); color:var(--ink); }
+    header { padding: 18px 16px 8px; text-align:center; }
+    h1 { margin:0; font-size:1.55rem; }
+    .sub { color:var(--muted); margin-top:6px; font-size:.95rem; }
+    main { max-width: 760px; margin: 0 auto; padding: 10px 14px 30px; }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:18px; padding:16px; margin:12px 0; box-shadow: 0 2px 8px rgba(0,0,0,.04); }
+    .tabs { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin:8px 0 12px; }
+    .tabs a { text-align:center; text-decoration:none; padding:10px 8px; border-radius:12px; background:#fff; border:1px solid var(--line); color:var(--ink); font-weight:650; font-size:.86rem; }
+    .tabs a.active { border-color:var(--accent); color:var(--accent); }
+    label { display:block; font-size:.88rem; color:var(--muted); margin:12px 0 5px; }
+    input, select, textarea { width:100%; border:1px solid var(--line); border-radius:12px; padding:11px; font:inherit; background:#fff; }
+    button { width:100%; border:0; border-radius:14px; padding:14px 16px; font:inherit; font-weight:750; color:white; background:var(--accent); margin-top:14px; cursor:pointer; }
+    button.secondary { background:var(--ink); }
+    .result { display:none; border-radius:16px; padding:14px; margin-top:14px; background:#eef6ff; border:1px solid #bfdbfe; }
+    .result h2 { margin:0 0 8px; font-size:1.15rem; }
+    .big { font-size:2.2rem; font-weight:850; line-height:1; }
+    .pill { display:inline-block; padding:6px 10px; border-radius:999px; font-weight:750; margin:4px 4px 4px 0; background:#e5e7eb; }
+    .yes { background:#dcfce7; color:#166534; }
+    .no { background:#fee2e2; color:#991b1b; }
+    .note { color:var(--muted); font-size:.9rem; line-height:1.4; }
+    .small { font-size:.82rem; color:var(--muted); }
+    details { margin-top:10px; }
+    summary { cursor:pointer; font-weight:700; }
+    table { width:100%; border-collapse: collapse; margin-top:10px; font-size:.92rem; }
+    td, th { border:1px solid var(--line); padding:8px; text-align:left; }
+    th { background:#f3f4f6; }
+    .hidden { display:none; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Muizenberg Mathematical Fever</h1>
+    <div class="sub">MMF 2026 phone randomiser</div>
+  </header>
+  <main>
+    <nav class="tabs">
+      <a href="#infection" id="tab-infection">QR 1<br>Infection</a>
+      <a href="#symptoms" id="tab-symptoms">QR 2<br>Symptoms</a>
+      <a href="#blocked" id="tab-blocked">QR 3<br>Blocked</a>
+    </nav>
+
+    <section class="card" id="infection">
+      <h2>QR 1: Infection randomiser</h2>
+      <p class="note">Use this at the <strong>next meal after receiving an infection sheet</strong>. Press the button once. Write the results on your sheet.</p>
+      <label for="participant">Your name or participant code</label>
+      <input id="participant" autocomplete="name" placeholder="e.g. P17 or your name" />
+      <label for="meal">Current meal / epidemic day</label>
+      <select id="meal"></select>
+      <button onclick="runInfection()">Generate my MMF instructions</button>
+      <div class="result" id="infectionResult"></div>
+      <details>
+        <summary>Organiser settings</summary>
+        <label for="lambda">Mean number to infect, lambda</label>
+        <input id="lambda" type="number" step="0.1" value="1.5" />
+        <label for="pSymp">Probability symptomatic</label>
+        <input id="pSymp" type="number" step="0.05" min="0" max="1" value="0.60" />
+        <label for="pImmune">Probability of immunity after infection task</label>
+        <input id="pImmune" type="number" step="0.05" min="0" max="1" value="0.50" />
+        <p class="small">Default recommendation: lambda = 1.5, symptomatic probability = 0.60, immunity-after-task probability = 0.50.</p>
+      </details>
+    </section>
+
+    <section class="card hidden" id="symptoms">
+      <h2>QR 2: Symptom report</h2>
+      <p class="note">Use this only if the randomiser says you are symptomatic. This version creates text you can copy into a Google/Microsoft Form, WhatsApp message, or paper symptom card.</p>
+      <label for="sympName">Name or participant code</label>
+      <input id="sympName" placeholder="e.g. P17 or your name" />
+      <label for="sympMeal">Meal / epidemic day symptoms reported</label>
+      <select id="sympMeal"></select>
+      <label for="sympNotes">Optional notes</label>
+      <textarea id="sympNotes" rows="3" placeholder="e.g. mild symptoms, reported at lunch"></textarea>
+      <button onclick="makeSymptomText()">Create symptom report text</button>
+      <div class="result" id="symptomResult"></div>
+    </section>
+
+    <section class="card hidden" id="blocked">
+      <h2>QR 3: Blocked infection attempt</h2>
+      <p class="note">Use this when an immune participant blocks an infection attempt with a weapon token.</p>
+      <label for="blocker">Immune participant name/code</label>
+      <input id="blocker" placeholder="Person who blocked the infection" />
+      <label for="infector">Person who attempted infection</label>
+      <input id="infector" placeholder="Person who tried to infect you" />
+      <label for="blockedMeal">Meal / epidemic day</label>
+      <select id="blockedMeal"></select>
+      <button onclick="makeBlockedText()">Create blocked-attempt text</button>
+      <div class="result" id="blockedResult"></div>
+    </section>
+
+    <section class="card">
+      <h2>Meal-to-epidemic-day map</h2>
+      <table id="mealTable"></table>
+      <p class="small">Tip: make separate QR codes using URL fragments: <code>#infection</code>, <code>#symptoms</code>, and <code>#blocked</code>.</p>
+    </section>
+  </main>
+
+<script>
+const meals = [];
+const mealNames = ["Breakfast", "Lunch", "Dinner"];
+for (let d = 1; d <= 5; d++) {
+  for (let m = 0; m < mealNames.length; m++) {
+    const epidemicDay = (d - 1) * 3 + m + 1;
+    meals.push({ label: `Clinic Day ${d} ${mealNames[m]} - Epidemic Day ${epidemicDay}`, day: epidemicDay });
+  }
+}
+
+function populateMeals() {
+  for (const id of ["meal", "sympMeal", "blockedMeal"]) {
+    const sel = document.getElementById(id);
+    meals.forEach(x => {
+      const opt = document.createElement("option");
+      opt.value = x.label;
+      opt.textContent = x.label;
+      sel.appendChild(opt);
+    });
+  }
+  const tbl = document.getElementById("mealTable");
+  tbl.innerHTML = "<tr><th>Clinic meal</th><th>Epidemic day</th></tr>" + meals.map(x => `<tr><td>${x.label.split(' - ')[0]}</td><td>${x.day}</td></tr>`).join("");
+}
+
+function poisson(lambda) {
+  const L = Math.exp(-lambda);
+  let k = 0;
+  let p = 1;
+  do {
+    k++;
+    p *= Math.random();
+  } while (p > L);
+  return k - 1;
+}
+
+function bernoulli(prob) {
+  return Math.random() < prob;
+}
+
+function safeNum(id, fallback) {
+  const v = parseFloat(document.getElementById(id).value);
+  if (Number.isFinite(v)) return Math.max(0, Math.min(id === "lambda" ? 10 : 1, v));
+  return fallback;
+}
+
+function runInfection() {
+  const name = document.getElementById("participant").value.trim() || "Not entered";
+  const meal = document.getElementById("meal").value;
+  const lambda = safeNum("lambda", 1.5);
+  const pSymp = safeNum("pSymp", 0.60);
+  const pImmune = safeNum("pImmune", 0.50);
+  const n = poisson(lambda);
+  const symptomatic = bernoulli(pSymp);
+  const immune = bernoulli(pImmune);
+  const now = new Date();
+  const html = `
+    <h2>Your MMF result</h2>
+    <p><strong>Name/code:</strong> ${escapeHTML(name)}<br><strong>Meal:</strong> ${escapeHTML(meal)}<br><strong>Generated:</strong> ${now.toLocaleString()}</p>
+    <div class="big">${n}</div>
+    <p><strong>Number of people to infect during this meal:</strong> ${n}</p>
+    <span class="pill ${symptomatic ? 'yes' : 'no'}">Symptomatic: ${symptomatic ? 'YES' : 'NO'}</span>
+    <span class="pill ${immune ? 'yes' : 'no'}">Recovered with immunity after task: ${immune ? 'YES' : 'NO'}</span>
+    <p class="note">First, complete your infection task. Then write down your symptom and immunity results. If symptomatic, report symptoms. If immune, collect a weapon token and use it to block future attempts from the next meal onwards.</p>
+  `;
+  const out = document.getElementById("infectionResult");
+  out.innerHTML = html;
+  out.style.display = "block";
+}
+
+function makeSymptomText() {
+  const name = document.getElementById("sympName").value.trim() || "Not entered";
+  const meal = document.getElementById("sympMeal").value;
+  const notes = document.getElementById("sympNotes").value.trim() || "None";
+  const text = `SYMPTOM REPORT | Name/code: ${name} | Meal: ${meal} | Notes: ${notes}`;
+  const out = document.getElementById("symptomResult");
+  out.innerHTML = `<h2>Copy this report</h2><p>${escapeHTML(text)}</p>`;
+  out.style.display = "block";
+}
+
+function makeBlockedText() {
+  const blocker = document.getElementById("blocker").value.trim() || "Not entered";
+  const infector = document.getElementById("infector").value.trim() || "Not entered";
+  const meal = document.getElementById("blockedMeal").value;
+  const text = `BLOCKED ATTEMPT | Immune participant: ${blocker} | Attempted infector: ${infector} | Meal: ${meal}`;
+  const out = document.getElementById("blockedResult");
+  out.innerHTML = `<h2>Copy this report</h2><p>${escapeHTML(text)}</p>`;
+  out.style.display = "block";
+}
+
+function escapeHTML(s) {
+  return String(s).replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch]));
+}
+
+function showSection() {
+  const hash = location.hash || "#infection";
+  for (const id of ["infection", "symptoms", "blocked"]) {
+    document.getElementById(id).classList.toggle("hidden", hash !== `#${id}`);
+    const tab = document.getElementById(`tab-${id}`);
+    if (tab) tab.classList.toggle("active", hash === `#${id}`);
+  }
+}
+
+populateMeals();
+window.addEventListener("hashchange", showSection);
+showSection();
+</script>
+</body>
+</html>
