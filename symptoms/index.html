@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MMF Randomiser</title>
+  <title>MMF QR2 - Am I symptomatic?</title>
   <style>
 :root {
   --bg: #ffffff;
@@ -109,12 +109,53 @@ button:disabled {
 <main>
   <section class="card">
     <div class="kicker">Muizenberg Mathematical Fever</div>
-    <h1>MMF Randomiser</h1>
-    <p>Use the correct QR code / page for the step on your infection sheet.</p>
-    <p><a class="badge" href="./infect/">QR1: Infect</a></p>
-    <p><a class="badge" href="./symptoms/">QR2: Symptoms</a></p>
-    <p><a class="badge" href="./immunity/">QR3: Immunity</a></p>
+    <h1>QR2: Symptoms</h1>
+    <p><strong>Use this once for this infection sheet.</strong> Show the result to a mentor if requested, then write it on your sheet.</p>
+    <p class="small">Distribution: Bernoulli/binomial draw with probability p = 0.6.</p>
+
+    <div class="result" id="result">
+      <span class="result-word">?</span><strong>Tap the button to check symptoms.</strong>
+    </div>
+
+    <button id="drawButton" type="button">Check symptoms</button>
+
+    <div class="instructions">
+      <p><span class="badge">Step 4</span> If the result is YES, go to Station B / Symptom Box, complete a symptom card, and put it in the box.</p>
+       <p class="small">If the result is NO, do not report symptoms.</p>
+    </div>
+
+    <div class="footer">
+      MMF randomiser. This page runs fully in your phone browser; no personal data is stored here.
+    </div>
   </section>
 </main>
+
+<script>
+
+const P_SYMPTOMATIC = 0.6;
+
+function drawBernoulli(p) {
+  return Math.random() < p ? 1 : 0;
+}
+
+function draw() {
+  const symptomatic = drawBernoulli(P_SYMPTOMATIC);
+  const now = new Date().toLocaleString();
+  const word = symptomatic ? "YES" : "NO";
+  const message = symptomatic
+    ? "You are symptomatic. Go to Station B / Symptom Box and complete a symptom card."
+    : "You are not symptomatic. Do not complete a symptom card.";
+  document.getElementById("result").innerHTML = `
+    <span class="result-word">${word}</span>
+    <strong>${message}</strong>
+    <p class="small">Generated at ${now}</p>
+  `;
+  document.getElementById("drawButton").disabled = true;
+  document.getElementById("drawButton").textContent = "Result generated";
+}
+
+document.getElementById("drawButton").addEventListener("click", draw);
+
+</script>
 </body>
 </html>

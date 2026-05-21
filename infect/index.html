@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MMF Randomiser</title>
+  <title>MMF QR1 - How many people to infect?</title>
   <style>
 :root {
   --bg: #ffffff;
@@ -109,12 +109,57 @@ button:disabled {
 <main>
   <section class="card">
     <div class="kicker">Muizenberg Mathematical Fever</div>
-    <h1>MMF Randomiser</h1>
-    <p>Use the correct QR code / page for the step on your infection sheet.</p>
-    <p><a class="badge" href="./infect/">QR1: Infect</a></p>
-    <p><a class="badge" href="./symptoms/">QR2: Symptoms</a></p>
-    <p><a class="badge" href="./immunity/">QR3: Immunity</a></p>
+    <h1>QR1: Infect</h1>
+    <p><strong>Use this once for this infection sheet.</strong> Show the result to a mentor if requested, then write it on your sheet.</p>
+    <p class="small">Distribution: Poisson(lambda = 1.5). This gives the number of people you must infect during Meal X+1.</p>
+
+    <div class="result" id="result">
+      <span class="result-number">?</span><strong>Tap the button to generate your number.</strong>
+    </div>
+
+    <button id="drawButton" type="button">Generate number</button>
+
+    <div class="instructions">
+      <p><span class="badge">Step 2</span> Write this number on your infection sheet.</p>
+       <p><span class="badge">Step 3</span> At Meal X+1, collect this many infection sheets from Station A and hand them to MMED participants.</p>
+       <p class="small">If someone blocks you with an immunity weapon, choose another participant who is not immune.</p>
+    </div>
+
+    <div class="footer">
+      MMF randomiser. This page runs fully in your phone browser; no personal data is stored here.
+    </div>
   </section>
 </main>
+
+<script>
+
+const LAMBDA = 1.5;
+
+function poisson(lambda) {
+  const L = Math.exp(-lambda);
+  let k = 0;
+  let p = 1;
+  do {
+    k += 1;
+    p *= Math.random();
+  } while (p > L);
+  return k - 1;
+}
+
+function draw() {
+  const n = poisson(LAMBDA);
+  const now = new Date().toLocaleString();
+  document.getElementById("result").innerHTML = `
+    <span class="result-number">${n}</span>
+    <strong>people to infect at this meal</strong>
+    <p class="small">Generated at ${now}</p>
+  `;
+  document.getElementById("drawButton").disabled = true;
+  document.getElementById("drawButton").textContent = "Result generated";
+}
+
+document.getElementById("drawButton").addEventListener("click", draw);
+
+</script>
 </body>
 </html>

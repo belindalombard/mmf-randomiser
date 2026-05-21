@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>MMF Randomiser</title>
+  <title>MMF QR3 - Am I immune?</title>
   <style>
 :root {
   --bg: #ffffff;
@@ -109,12 +109,54 @@ button:disabled {
 <main>
   <section class="card">
     <div class="kicker">Muizenberg Mathematical Fever</div>
-    <h1>MMF Randomiser</h1>
-    <p>Use the correct QR code / page for the step on your infection sheet.</p>
-    <p><a class="badge" href="./infect/">QR1: Infect</a></p>
-    <p><a class="badge" href="./symptoms/">QR2: Symptoms</a></p>
-    <p><a class="badge" href="./immunity/">QR3: Immunity</a></p>
+    <h1>QR3: Immunity</h1>
+    <p><strong>Use this once for this infection sheet.</strong> Show the result to a mentor if requested, then write it on your sheet.</p>
+    <p class="small">Distribution: Bernoulli/binomial draw with probability p = 0.5 after completing your infection task.</p>
+
+    <div class="result" id="result">
+      <span class="result-word">?</span><strong>Tap the button to check immunity.</strong>
+    </div>
+
+    <button id="drawButton" type="button">Check immunity</button>
+
+    <div class="instructions">
+      <p><span class="badge">Step 5</span> If the result is YES, show this screen to a mentor and collect your immunity weapon.</p>
+       <p><span class="badge">Future meals</span> Use your weapon to block reinfection attempts.</p>
+       <p class="small">If the result is NO, you remain susceptible and can be infected again later.</p>
+    </div>
+
+    <div class="footer">
+      MMF randomiser. This page runs fully in your phone browser; no personal data is stored here.
+    </div>
   </section>
 </main>
+
+<script>
+
+const P_IMMUNE = 0.5;
+
+function drawBernoulli(p) {
+  return Math.random() < p ? 1 : 0;
+}
+
+function draw() {
+  const immune = drawBernoulli(P_IMMUNE);
+  const now = new Date().toLocaleString();
+  const word = immune ? "YES" : "NO";
+  const message = immune
+    ? "You are now immune. Show this to a mentor and collect your immunity weapon."
+    : "You are not immune. You can be infected again at a future meal.";
+  document.getElementById("result").innerHTML = `
+    <span class="result-word">${word}</span>
+    <strong>${message}</strong>
+    <p class="small">Generated at ${now}</p>
+  `;
+  document.getElementById("drawButton").disabled = true;
+  document.getElementById("drawButton").textContent = "Result generated";
+}
+
+document.getElementById("drawButton").addEventListener("click", draw);
+
+</script>
 </body>
 </html>
