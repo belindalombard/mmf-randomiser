@@ -111,7 +111,7 @@ button:disabled {
     <div class="kicker">Muizenberg Mathematical Fever</div>
     <h1>Infections</h1>
     <p><strong>Use this once for this infection sheet.</strong> Write the answer on the infection sheet.</p>
-    <p class="small">Distribution: Poisson(lambda = 1.5). This gives the number of people you must infect during Meal X+1.</p>
+    <p class="small">Distribution: Poisson(lambda = 1.8). This gives the number of people you must infect within 24 hours.</p>
 
     <div class="result" id="result">
       <span class="result-number">?</span><strong>Tap the button to generate your number.</strong>
@@ -127,7 +127,7 @@ button:disabled {
 
 <script>
 
-const LAMBDA = 1.5;
+const LAMBDA = 1.8;
 
 function poisson(lambda) {
   const L = Math.exp(-lambda);
@@ -145,7 +145,7 @@ function draw() {
   const now = new Date().toLocaleString();
   document.getElementById("result").innerHTML = `
     <span class="result-number">${n}</span>
-    <strong>people to infect at this meal</strong>
+    <strong>people to infect within 24 hours.</strong>
     <p class="small">Generated at ${now}</p>
   `;
   document.getElementById("drawButton").disabled = true;
