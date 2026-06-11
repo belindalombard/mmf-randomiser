@@ -120,7 +120,7 @@ button:disabled {
     <button id="drawButton" type="button">Check symptoms</button>
 
     <div class="instructions">
-      <p><span class="badge">Step 4</span> If the result is YES, go to Station B / Symptom Box, complete a symptom card, and put it in the box.</p>
+      <p><span class="badge">Step 4</span> If the result is YES, go to the Doctor (Brian) and report that you are ill.</p>
     </div>
 
     <div class="footer">
@@ -142,8 +142,8 @@ function draw() {
   const now = new Date().toLocaleString();
   const word = symptomatic ? "YES" : "NO";
   const message = symptomatic
-    ? "You are symptomatic. Go to Station B / Symptom Box and complete a symptom card."
-    : "You are not symptomatic. Do not complete a symptom card.";
+    ? "You are symptomatic. Report at the Doctor (Brian)."
+    : "You are not symptomatic. Do nothing.";
   document.getElementById("result").innerHTML = `
     <span class="result-word">${word}</span>
     <strong>${message}</strong>
